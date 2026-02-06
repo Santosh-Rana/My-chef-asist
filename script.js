@@ -17,7 +17,7 @@ const firebaseConfig = {
 
 const API_PART_1 = "sk-or-v1-505ca83a270b6ef6b203509ed7f643147";
 const API_PART_2 = "7a29a93b7c0649c78bcc36c55c8218a";
-const AI_MODEL = "tngtech/deepseek-r1t2-chimera:free";
+const AI_MODEL = "mistralai/mistral-7b-instruct:free";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -1158,7 +1158,10 @@ chatForm.addEventListener('submit', async (e) => {
             },
             body: JSON.stringify({
                 model: AI_MODEL,
-                messages: messages
+                messages: messages,
+                max_tokens: 512,
+                temperature: 0.7,
+                top_p: 0.9
             })
         });
         
@@ -1172,7 +1175,7 @@ chatForm.addEventListener('submit', async (e) => {
         const contentDiv = botMsgDiv.querySelector('.chat-content');
         
         // Typewriter function call karein (Content div, HTML text, Speed)
-        typeWriter(contentDiv, htmlContent, 10); 
+        typeWriter(contentDiv, htmlContent, 0); 
         
         // History save karein
         conversationHistory.push({ role: 'user', content: userMessage, id: messageId });
@@ -1895,4 +1898,3 @@ function typeWriter(element, html, speed = 0) { // Speed ko 0 kar diya (Instant)
     
     type();
 }
-
