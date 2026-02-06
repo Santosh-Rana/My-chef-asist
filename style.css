@@ -1894,3 +1894,79 @@ body {
     flex-direction: column;
     justify-content: flex-start;
 }
+
+/* =========================================
+   FULL WIDTH AI RESPONSE (ChatGPT Style)
+   ========================================= */
+
+/* AI Message Container - Column Mode */
+.message.bot-message.full-width-mode {
+    flex-direction: column; /* Avatar upar, text neeche (ya avatar hidden) */
+    width: 100%;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--surface-variant); /* Separation line */
+}
+
+/* Avatar ko chupayein taaki text ko jagah mile (Optional) */
+.message.bot-message.full-width-mode .avatar {
+    display: none; 
+}
+
+/* Chat Content Box ko modify karein */
+.message.bot-message.full-width-mode .chat-content {
+    width: 100%;
+    max-width: 100%;
+    background-color: transparent; /* Bubble color hatayein */
+    border: none; /* Border hatayein */
+    box-shadow: none; /* Shadow hatayein */
+    padding: 0; /* Padding kam karein taaki text fail sake */
+    font-size: 1rem; /* Font thoda bada karein padhne ke liye */
+    line-height: 1.8;
+}
+
+/* Headings ko thoda bada aur clear karein */
+.message.bot-message.full-width-mode .chat-content h1,
+.message.bot-message.full-width-mode .chat-content h2 {
+    color: var(--primary);
+    margin-top: 20px;
+    border-bottom: 1px solid var(--surface-variant);
+    padding-bottom: 8px;
+}
+
+/* Lists ko thoda andar karein */
+.message.bot-message.full-width-mode .chat-content ul, 
+.message.bot-message.full-width-mode .chat-content ol {
+    margin-left: 10px;
+    padding-left: 20px;
+}
+/* --- SKELETON LOADING ANIMATION --- */
+.skeleton-loader {
+    width: 100%;
+    padding: 10px 0;
+}
+
+.skeleton-line {
+    height: 14px;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        var(--surface-variant) 25%,
+        var(--primary-container) 50%,
+        var(--surface-variant) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+}
+
+/* Alag alag size ki lines taaki real paragraph lage */
+.skeleton-line.title { width: 50%; height: 20px; margin-bottom: 20px; }
+.skeleton-line.full { width: 100%; }
+.skeleton-line.medium { width: 85%; }
+.skeleton-line.short { width: 60%; }
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
