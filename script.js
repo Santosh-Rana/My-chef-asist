@@ -1112,7 +1112,7 @@ function getSmartSystemPrompt(userMessage, userLanguage) {
         return recipePrompts[userLanguage] || recipePrompts.en;
     }
 }
-
+// --- UPDATED CHAT FORM LISTENER ---
 chatForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const userMessage = promptInput.value.trim();
@@ -1122,33 +1122,32 @@ chatForm.addEventListener('submit', async (e) => {
     addMessage('user', userMessage, messageId);
     promptInput.value = '';
     
-    const botMsgDiv = addMessage('bot', `
-        <div class="typing-indicator">
-            <span class="material-symbols-rounded">smart_toy</span>
-            <div class="typing-dots">
-                <span class="dot">●</span>
-                <span class="dot">●</span>
-                <span class="dot">●</span>
-            </div>
+    // 1. SKELETON LOADER DIKHAYEIN (Purane dots ki jagah)
+    const skeletonHTML = `
+        <div class="skeleton-loader">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line full"></div>
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line full"></div>
+            <div class="skeleton-line short"></div>
         </div>
-    `, messageId + 1);
+    `;
+    
+    // Bot message add karein (Skeleton ke saath)
+    const botMsgDiv = addMessage('bot', skeletonHTML, messageId + 1);
     
     try {
-        // 1. Determine Context (Recipe vs Meal Plan vs Party)
         const systemPrompt = getSmartSystemPrompt(userMessage, currentLanguage);
         
-        // 2. Prepare Message History for Context
-        // We take the last 6 messages to keep the conversation flowing
         const recentHistory = conversationHistory.slice(-6).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.content
         }));
 
-        // 3. Construct API Payload
         const messages = [
             { role: 'system', content: systemPrompt },
-            ...recentHistory, // Include history
-            { role: 'user', content: userMessage } // Add current message
+            ...recentHistory, 
+            { role: 'user', content: userMessage }
         ];
         
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -1166,10 +1165,16 @@ chatForm.addEventListener('submit', async (e) => {
         const data = await response.json();
         const botReply = data.choices[0].message.content;
         
+        // Markdown ko HTML mein convert karein
         const htmlContent = marked.parse(botReply);
-        botMsgDiv.querySelector('.chat-content').innerHTML = htmlContent;
         
-        // Add to history
+        // 2. SKELETON HATAYEIN AUR TYPING EFFECT SHURU KAREIN
+        const contentDiv = botMsgDiv.querySelector('.chat-content');
+        
+        // Typewriter function call karein (Content div, HTML text, Speed)
+        typeWriter(contentDiv, htmlContent, 10); 
+        
+        // History save karein
         conversationHistory.push({ role: 'user', content: userMessage, id: messageId });
         conversationHistory.push({ role: 'assistant', content: botReply, id: messageId + 1 });
 
@@ -1178,8 +1183,15 @@ chatForm.addEventListener('submit', async (e) => {
         botMsgDiv.querySelector('.chat-content').innerHTML = `<p style="color:#ff4d4d;">Error: ${err.message}. Please try again.</p>`;
     }
     
-    chatHistory.scrollTop = chatHistory.scrollHeight;
+    // Scroll automatically neeche karte rahein
+    const scrollInterval = setInterval(() => {
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }, 100);
+    
+    // 2 second baad scroll rok dein
+    setTimeout(() => clearInterval(scrollInterval), 2000);
 });
+
 
 
 function extractDishName(userMessage) {
@@ -1214,12 +1226,16 @@ async function generateDishImage(dishName) {
     });
 }
 
+// Function to add message to UI (UPDATED FOR FULL WIDTH AI)
 function addMessage(role, content, id = Date.now()) {
     const msgDiv = document.createElement('div');
+    
+    // Default classes
     msgDiv.className = `message ${role}-message`;
     msgDiv.dataset.messageId = id;
     
     if (role === 'user') {
+        // --- USER MESSAGE (Bubble Style) ---
         msgDiv.innerHTML = `
             <div class="user-message-container">
                 <div class="user-bubble">${content}</div>
@@ -1231,16 +1247,24 @@ function addMessage(role, content, id = Date.now()) {
             </div>
         `;
         
-        // Right-click context menu
+        // Right-click context menu for User
         msgDiv.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             showUserContextMenu(e, content, id);
         });
+
     } else {
+        // --- BOT MESSAGE (Full Width Document Style) ---
+        
+        // Yahan hum nayi class 'full-width-mode' add kar rahe hain
+        msgDiv.classList.add('full-width-mode');
+
         msgDiv.innerHTML = `
             <div class="avatar"><span class="material-symbols-rounded">smart_toy</span></div>
             <div class="chat-content">${content}</div>
         `;
+        
+        // Right-click context menu for Bot
         msgDiv.addEventListener('contextmenu', (e) => showBotContextMenu(e, content));
     }
     
@@ -1825,3 +1849,50 @@ window.handleLogout = () => signOut(auth);
 
 // Render initial recipes
 renderRecipes();
+
+
+
+
+
+// --- HELPER: Typewriter Effect for HTML (Faster Version) ---
+function typeWriter(element, html, speed = 0) { // Speed ko 0 kar diya (Instant)
+    
+    // Agar speed 0 hai, toh turant pura text dikha do (No waiting)
+    if (speed === 0) {
+        element.innerHTML = html;
+        return;
+    }
+
+    let i = 0;
+    let buffer = "";
+    element.innerHTML = ""; 
+    
+    function type() {
+        if (i >= html.length) return; 
+        
+        let char = html.charAt(i);
+        
+        // HTML tags ko fast skip karein
+        if (char === '<') {
+            let tag = '';
+            while (i < html.length && html.charAt(i) !== '>') {
+                tag += html.charAt(i);
+                i++;
+            }
+            tag += '>'; 
+            i++;
+            buffer += tag;
+        } else {
+            buffer += char;
+            i++;
+        }
+        
+        element.innerHTML = buffer; 
+        
+        // Timeout ko kam kar diya
+        setTimeout(type, speed); 
+    }
+    
+    type();
+}
+
