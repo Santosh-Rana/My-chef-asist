@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    <title>Chef Master AI</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+    <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="light-theme app-loading">
+
+    <div id="app-container">
+        
+        <header class="app-header">
+            <div class="logo-area">
+                <span class="material-symbols-rounded logo-icon">skillet</span>
+                <h1>Chef Master</h1>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="icon-btn">
+                    <span class="material-symbols-rounded">dark_mode</span>
+                </button>
+            </div>
+        </header>
+
+        <main id="main-content">
+
+            <!-- HOME -->
+            <section id="view-home" class="view active-view">
+                <div class="welcome-banner">
+                    <h2 data-i18n="welcome">Hello, Chef! 👨‍🍳</h2>
+                    <p data-i18n="whatCooking">What are we cooking today?</p>
+                </div>
+                <div class="section-title" data-i18n="quickActions">Quick Actions</div>
+                <div class="chips-scroll">
+                    <button class="chip" onclick="triggerAIPrompt('Suggest a healthy breakfast')">
+                        <span class="material-symbols-rounded">restaurant</span>
+                        <span data-i18n="healthyBreakfast">Healthy Breakfast</span>
+                    </button>
+                    <button class="chip" onclick="triggerAIPrompt('Quick 15-minute dinner')">
+                        <span class="material-symbols-rounded">schedule</span>
+                        <span data-i18n="quickDinner">15-min Dinner</span>
+                    </button>
+                    <button class="chip" onclick="triggerAIPrompt('Authentic Paneer Butter Masala recipe')">
+                        <span class="material-symbols-rounded">ramen_dining</span>
+                        <span data-i18n="paneerSpecial">Paneer Special</span>
+                    </button>
+                    <button class="chip" onclick="triggerAIPrompt('Suggest a dessert with chocolate')">
+                        <span class="material-symbols-rounded">cake</span>
+                        <span data-i18n="chocolateDessert">Chocolate Dessert</span>
+                    </button>
+                    <button class="chip" onclick="triggerAIPrompt('Plan a healthy, budget-friendly weekly meal plan (Breakfast, Lunch, Dinner) that is homemade and good for digestion.')">
+    <span class="material-symbols-rounded">calendar_month</span>
+    <span data-i18n="mealPlan">Weekly Meal Plan</span>
+</button>
+
+<button class="chip" onclick="triggerAIPrompt('I want to plan a Bhoj or Party menu. Please guide me.')">
+    <span class="material-symbols-rounded">groups</span>
+    <span data-i18n="partyPlanner">Bhoj/Party Planner</span>
+                </div>
+                <div class="section-title" data-i18n="trendingNow">Trending Now</div>
+                <div class="card-grid" id="home-trending-grid"></div>
+            </section>
+
+            <!-- AI CHAT -->
+            <section id="view-ai" class="view">
+                <div class="chat-top-bar" id="chat-top-bar">
+                    <button class="chat-top-btn" id="new-chat-btn" title="New Chat">
+                        <span class="material-symbols-rounded">add_circle</span>
+                    </button>
+                    <span class="chat-top-title" data-i18n="aiChef">AI Chef</span>
+                    <button class="chat-top-btn" id="clear-chat-btn" title="Clear Chat">
+                        <span class="material-symbols-rounded">delete_sweep</span>
+                    </button>
+                </div>
+                <div class="chat-container" id="chat-history">
+                    <div class="bot-message message" id="welcome-msg">
+                        <div class="avatar"><span class="material-symbols-rounded">smart_toy</span></div>
+                        <div class="chat-content">
+                            <p data-i18n="aiWelcome">Hello! I'm Chef Master AI. I can help you with recipes, ingredients, or cooking tips. Ask me anything! 🍲</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input-area" id="chat-input-area">
+                    <form id="chat-form">
+                        <input type="text" id="prompt-input" placeholder="Ask Chef Master AI..." autocomplete="off">
+                        <button type="submit" id="send-btn">
+                            <span class="material-symbols-rounded">send</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- RECIPES -->
+            <section id="view-recipes" class="view">
+                <div class="filter-bar">
+                    <button class="filter-btn active" data-filter="all" data-i18n="all">All</button>
+                    <button class="filter-btn" data-filter="veg" data-i18n="veg">Veg</button>
+                    <button class="filter-btn" data-filter="non-veg" data-i18n="nonVeg">Non-Veg</button>
+                    <button class="filter-btn" data-filter="sweet" data-i18n="sweet">Sweet</button>
+                </div>
+                <div class="recipe-list" id="recipe-list-container"></div>
+            </section>
+
+            <!-- TIMER -->
+            <section id="view-timer" class="view">
+                <div class="timer-header">
+                    <h2 data-i18n="kitchenTimers">Kitchen Timers ⏱️</h2>
+                    <button class="add-timer-btn" id="add-timer-btn">
+                        <span class="material-symbols-rounded">add</span>
+                    </button>
+                </div>
+                <div class="timers-container" id="timers-container">
+                    <p style="text-align:center; color:var(--text-sub); padding:40px;" data-i18n="noTimers">No active timers. Tap + to add one! ⏱️</p>
+                </div>
+            </section>
+
+            <!-- PROFILE -->
+            <section id="view-profile" class="view">
+                <div id="auth-container">
+                    <div class="auth-card">
+                        <h2 id="auth-title" data-i18n="login">Login</h2>
+                        <input type="email" id="auth-email" data-i18n-placeholder="emailAddress" placeholder="Email Address">
+                        <input type="password" id="auth-password" data-i18n-placeholder="password" placeholder="Password">
+                        <button id="auth-action-btn" class="primary-btn" data-i18n="login">Login</button>
+                        <p class="auth-switch">
+                            <span id="auth-switch-text" data-i18n="noAccount">Don't have an account?</span> 
+                            <b id="auth-switch-btn" data-i18n="signUp">Sign Up</b>
+                        </p>
+                        <p id="auth-error" class="error-text"></p>
+                    </div>
+                    <div id="login-notice" class="login-notice">
+                        <span class="material-symbols-rounded">info</span>
+                        <span data-i18n="loginNotice">Sign up or log in to enable themes and customization.</span>
+                    </div>
+                </div>
+                <div id="user-profile-container" class="hidden">
+                    <div class="profile-header">
+                        <div class="profile-avatar-container">
+                            <div class="profile-avatar" id="profile-avatar">
+                                <span class="material-symbols-rounded">person</span>
+                                <img id="profile-pic-preview" class="profile-pic-img hidden" src="" alt="Profile">
+                            </div>
+                            <button class="edit-profile-pic-btn" onclick="triggerProfilePicUpload()">
+                                <span class="material-symbols-rounded">photo_camera</span>
+                            </button>
+                            <input type="file" id="profile-pic-input" accept="image/*" class="hidden">
+                        </div>
+                        <h3 id="user-email-display">user@example.com</h3>
+                        <span class="badge" data-i18n="masterChef">Master Chef</span>
+                    </div>
+                    <div class="settings-list">
+                        <div class="setting-item" onclick="openThemeSettings()">
+                            <span class="material-symbols-rounded">palette</span><span data-i18n="themeColors">Theme & Colors</span>
+                        </div>
+                        <div class="setting-item" onclick="openAlarmSettings()">
+                            <span class="material-symbols-rounded">notifications</span><span data-i18n="alarmSounds">Alarm Sounds</span>
+                        </div>
+                        <div class="setting-item" onclick="openLanguageSettings()">
+                            <span class="material-symbols-rounded">translate</span><span data-i18n="language">Language</span>
+                        </div>
+                        <div class="setting-item" onclick="openHelpSupport()">
+                            <span class="material-symbols-rounded">help</span><span data-i18n="helpSupport">Help & Support</span>
+                        </div>
+                        <div class="setting-item" onclick="handleLogout()">
+                            <span class="material-symbols-rounded">logout</span><span data-i18n="logout">Logout</span>
+                        </div>
+                    </div>
+                    <div class="dev-info">
+                        <h4>Developed by Santosh Rana</h4>
+                        <p class="version">Version 2.0 | 2026</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-target="view-home">
+                <span class="material-symbols-rounded">home</span><span class="label" data-i18n="home">Home</span>
+            </button>
+            <button class="nav-item" data-target="view-ai">
+                <span class="material-symbols-rounded">psychology</span><span class="label" data-i18n="aiChef">AI Chef</span>
+            </button>
+            <button class="nav-item" data-target="view-recipes">
+                <span class="material-symbols-rounded">restaurant_menu</span><span class="label" data-i18n="recipes">Recipes</span>
+            </button>
+            <button class="nav-item" data-target="view-timer">
+                <span class="material-symbols-rounded">timer</span><span class="label" data-i18n="timer">Timer</span>
+            </button>
+            <button class="nav-item" data-target="view-profile">
+                <span class="material-symbols-rounded">person</span><span class="label" data-i18n="profile">Profile</span>
+            </button>
+        </nav>
+
+        <!-- THEME MODAL -->
+        <div id="theme-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeThemeModal()">&times;</span>
+                <h2>
+                    <span class="material-symbols-rounded">palette</span>
+                    <span data-i18n="chooseTheme">🎨 Choose Theme</span>
+                </h2>
+                <p class="modal-subtitle" data-i18n="selectColorScheme">Select your favorite color scheme</p>
+                <div class="theme-presets-grid">
+                    <button class="theme-preset-btn selected" data-theme="default" onclick="selectThemePreset('default')">
+                        <div class="theme-preview default-theme-preview"></div>
+                        <span data-i18n="defaultPurple">Default Purple</span>
+                    </button>
+                    <button class="theme-preset-btn" data-theme="warm" onclick="selectThemePreset('warm')">
+                        <div class="theme-preview warm-theme-preview"></div>
+                        <span data-i18n="warmRose">Warm Rose</span>
+                    </button>
+                    <button class="theme-preset-btn" data-theme="green" onclick="selectThemePreset('green')">
+                        <div class="theme-preview green-theme-preview"></div>
+                        <span data-i18n="freshGreen">Fresh Green</span>
+                    </button>
+                    <button class="theme-preset-btn" data-theme="orange" onclick="selectThemePreset('orange')">
+                        <div class="theme-preview orange-theme-preview"></div>
+                        <span data-i18n="spicyOrange">Spicy Orange</span>
+                    </button>
+                    <button class="theme-preset-btn" data-theme="ocean" onclick="selectThemePreset('ocean')">
+    <div class="theme-preview ocean-theme-preview"></div>
+    <span data-i18n="oceanTheme">Ocean Odyssey</span>
+</button>
+
+<button class="theme-preset-btn" data-theme="sugar" onclick="selectThemePreset('sugar')">
+    <div class="theme-preview sugar-theme-preview"></div>
+    <span data-i18n="sugarTheme">Sweet Heart-sugar</span>
+</button>
+
+<button class="theme-preset-btn" data-theme="india" onclick="selectThemePreset('india')">
+    <div class="theme-preview india-theme-preview"></div>
+    <span data-i18n="indiaTheme">Indian Flag</span>
+</button>
+
+<button class="theme-preset-btn" data-theme="midnight" onclick="selectThemePreset('midnight')">
+    <div class="theme-preview midnight-theme-preview"></div>
+    <span data-i18n="midnightTheme">Midnight Sun</span>
+</button>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ALARM MODAL -->
+        <div id="alarm-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeAlarmModal()">&times;</span>
+                <h2>
+                    <span class="material-symbols-rounded">notifications</span>
+                    <span data-i18n="chooseAlarm">🔔 Choose Alarm Sound</span>
+                </h2>
+                <p class="modal-subtitle" data-i18n="selectAlarmSound">Select your timer alarm sound</p>
+                <div class="alarm-presets-grid">
+                    <button class="alarm-preset-btn selected" data-alarm="beep" onclick="selectAlarm('beep')">
+                        <span class="material-symbols-rounded">notifications</span>
+                        <span data-i18n="classicBeep">Classic Beep</span>
+                    </button>
+                    <button class="alarm-preset-btn" data-alarm="chime" onclick="selectAlarm('chime')">
+                        <span class="material-symbols-rounded">radio_button_checked</span>
+                        <span data-i18n="gentleChime">Gentle Chime</span>
+                    </button>
+                    <button class="alarm-preset-btn" data-alarm="bell" onclick="selectAlarm('bell')">
+                        <span class="material-symbols-rounded">notifications_active</span>
+                        <span data-i18n="kitchenBell">Kitchen Bell</span>
+                    </button>
+                    <button class="alarm-preset-btn" data-alarm="urgent" onclick="selectAlarm('urgent')">
+                        <span class="material-symbols-rounded">priority_high</span>
+                        <span data-i18n="urgentAlert">Urgent Alert</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LANGUAGE MODAL -->
+        <div id="language-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeLanguageModal()">&times;</span>
+                <h2>
+                    <span class="material-symbols-rounded">translate</span>
+                    <span data-i18n="selectLanguage">Select Language</span>
+                </h2>
+                <p class="modal-subtitle" data-i18n="choosePreferredLanguage">Choose your preferred language</p>
+                <div class="language-grid">
+                    <button class="language-btn selected" data-lang="en" onclick="selectLanguage('en')">
+                        <span class="flag">🇬🇧</span>
+                        <span>English</span>
+                    </button>
+                    <button class="language-btn" data-lang="hi" onclick="selectLanguage('hi')">
+                        <span class="flag">🇮🇳</span>
+                        <span>हिन्दी</span>
+                    </button>
+                    <button class="language-btn" data-lang="hinglish" onclick="selectLanguage('hinglish')">
+                        <span class="flag">🇮🇳</span>
+                        <span>Hinglish</span>
+                    </button>
+                    <button class="language-btn" data-lang="or" onclick="selectLanguage('or')">
+                        <span class="flag">🇮🇳</span>
+                        <span>ଓଡ଼ିଆ</span>
+                    </button>
+                    <button class="language-btn" data-lang="zh" onclick="selectLanguage('zh')">
+                        <span class="flag">🇨🇳</span>
+                        <span>中文</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- HELP & SUPPORT MODAL -->
+        <div id="help-modal" class="modal">
+            <div class="modal-content help-modal-content">
+                <span class="close-modal" onclick="closeHelpModal()">&times;</span>
+                <h2>
+                    <span class="material-symbols-rounded">help</span>
+                    <span data-i18n="helpSupport">Help & Support</span>
+                </h2>
+                <p class="help-subtitle" data-i18n="needAssistance">Need assistance? We're here to help!</p>
+                
+                <div class="help-section">
+                    <h3 data-i18n="contactUs">Contact Us</h3>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="material-symbols-rounded">call</span>
+                            <div>
+                                <strong data-i18n="phone">Phone</strong>
+                                <p><a href="tel:+917855091829">+91 78550 91829</a></p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <span class="material-symbols-rounded">mail</span>
+                            <div>
+                                <strong data-i18n="email">Email</strong>
+                                <p><a href="mailto:ranasantosh3741@gmail.com">ranasantosh3741@gmail.com</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3 data-i18n="quickLinks">Quick Links</h3>
+                    <button class="help-link-btn" onclick="showPrivacyPolicy()">
+                        <span class="material-symbols-rounded">policy</span>
+                        <span data-i18n="privacyPolicy">Privacy Policy</span>
+                    </button>
+                    <button class="help-link-btn" onclick="showFAQ()">
+                        <span class="material-symbols-rounded">quiz</span>
+                        <span data-i18n="faq">FAQ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy Policy Modal -->
+        <div id="privacy-modal" class="modal">
+            <div class="modal-content privacy-modal-content">
+                <span class="close-modal" onclick="closePrivacyModal()">&times;</span>
+                <h2>
+                    <span class="material-symbols-rounded">policy</span>
+                    <span data-i18n="privacyPolicy">Privacy Policy</span>
+                </h2>
+                <div class="privacy-content">
+                    <p><strong data-i18n="lastUpdated">Last Updated:</strong> February 1, 2026</p>
+                    
+                    <h3 data-i18n="informationCollection">1. Information We Collect</h3>
+                    <p data-i18n="informationCollectionText">We collect information that you provide directly to us, including your email address for authentication, recipe preferences, and usage data to improve your experience.</p>
+                    
+                    <h3 data-i18n="howWeUse">2. How We Use Your Information</h3>
+                    <p data-i18n="howWeUseText">We use the information we collect to provide, maintain, and improve our services, send you technical notices and support messages, and personalize your experience.</p>
+                    
+                    <h3 data-i18n="dataSecurity">3. Data Security</h3>
+                    <p data-i18n="dataSecurityText">We implement appropriate security measures to protect your personal information. Your data is encrypted and stored securely using Firebase services.</p>
+                    
+                    <h3 data-i18n="dataSharing">4. Information Sharing</h3>
+                    <p data-i18n="dataSharingText">We do not sell, trade, or rent your personal information to third parties. We may share information with service providers who assist us in operating our application.</p>
+                    
+                    <h3 data-i18n="yourRights">5. Your Rights</h3>
+                    <p data-i18n="yourRightsText">You have the right to access, update, or delete your personal information at any time. Contact us for assistance with these requests.</p>
+                    
+                    <h3 data-i18n="contactPrivacy">6. Contact Us</h3>
+                    <p data-i18n="contactPrivacyText">If you have questions about this Privacy Policy, please contact us at ranasantosh3741@gmail.com or call +91 78550 91829.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODERN TIMER CREATION MODAL -->
+        <div id="timer-create-modal" class="modal">
+            <div class="modal-content timer-create-modal-content">
+                <span class="close-modal" onclick="closeTimerModal()">&times;</span>
+                <h2 data-i18n="newTimer">⏱️ New Timer</h2>
+                <p style="color:var(--text-sub);margin-bottom:20px;" data-i18n="setKitchenTimer">Set your kitchen timer</p>
+
+                <label class="timer-modal-label" data-i18n="timerName">Timer Name</label>
+                <input type="text" id="timer-name-input" class="timer-modal-input" data-i18n-placeholder="timerNamePlaceholder" placeholder="e.g. Boiling Eggs" value="Kitchen Timer">
+
+                <label class="timer-modal-label" data-i18n="setTime">Set Time</label>
+                <div class="time-picker-row">
+                    <div class="time-picker-col">
+                        <button class="time-inc-btn" data-target="timer-h-input" data-step="1"><span class="material-symbols-rounded">add</span></button>
+                        <input type="number" id="timer-h-input" class="time-picker-input" min="0" max="23" value="0">
+                        <button class="time-inc-btn" data-target="timer-h-input" data-step="-1"><span class="material-symbols-rounded">remove</span></button>
+                        <span class="time-picker-label" data-i18n="hour">Hour</span>
+                    </div>
+                    <span class="time-colon">:</span>
+                    <div class="time-picker-col">
+                        <button class="time-inc-btn" data-target="timer-m-input" data-step="1"><span class="material-symbols-rounded">add</span></button>
+                        <input type="number" id="timer-m-input" class="time-picker-input" min="0" max="59" value="10">
+                        <button class="time-inc-btn" data-target="timer-m-input" data-step="-1"><span class="material-symbols-rounded">remove</span></button>
+                        <span class="time-picker-label" data-i18n="min">Min</span>
+                    </div>
+                    <span class="time-colon">:</span>
+                    <div class="time-picker-col">
+                        <button class="time-inc-btn" data-target="timer-s-input" data-step="1"><span class="material-symbols-rounded">add</span></button>
+                        <input type="number" id="timer-s-input" class="time-picker-input" min="0" max="59" value="0">
+                        <button class="time-inc-btn" data-target="timer-s-input" data-step="-1"><span class="material-symbols-rounded">remove</span></button>
+                        <span class="time-picker-label" data-i18n="sec">Sec</span>
+                    </div>
+                </div>
+
+                <label class="timer-modal-label" data-i18n="quickPresets">Quick Presets</label>
+                <div class="timer-presets-row">
+                    <button class="timer-preset-chip" data-m="5">5 min</button>
+                    <button class="timer-preset-chip" data-m="10">10 min</button>
+                    <button class="timer-preset-chip" data-m="15">15 min</button>
+                    <button class="timer-preset-chip" data-m="30">30 min</button>
+                    <button class="timer-preset-chip" data-m="60">1 hr</button>
+                </div>
+
+                <div class="timer-modal-actions">
+                    <button class="timer-modal-cancel-btn" onclick="closeTimerModal()" data-i18n="cancel">Cancel</button>
+                    <button class="timer-modal-start-btn" id="timer-start-btn" data-i18n="startTimer">Start Timer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- USER message context menu -->
+        <div id="user-ctx-menu" class="ctx-menu hidden">
+            <button class="ctx-menu-item" id="ctx-edit-btn"><span class="material-symbols-rounded">edit</span> <span data-i18n="edit">Edit</span></button>
+            <button class="ctx-menu-item" id="ctx-copy-user-btn"><span class="material-symbols-rounded">content_copy</span> <span data-i18n="copy">Copy</span></button>
+        </div>
+
+        <!-- BOT message context menu -->
+        <div id="bot-ctx-menu" class="ctx-menu hidden">
+            <button class="ctx-menu-item" id="ctx-copy-bot-btn"><span class="material-symbols-rounded">content_copy</span> <span data-i18n="copy">Copy</span></button>
+            <button class="ctx-menu-item" id="ctx-whatsapp-btn"><span class="material-symbols-rounded">share</span> <span data-i18n="whatsapp">WhatsApp</span></button>
+            <button class="ctx-menu-item" id="ctx-read-btn"><span class="material-symbols-rounded">volume_up</span> <span data-i18n="readAloud">Read Aloud</span></button>
+        </div>
+
+    </div>
+    
+
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
