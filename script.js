@@ -691,12 +691,23 @@ function applyThemePreset(presetName) {
 
 themeToggle.addEventListener('click', () => {
     const isLight = document.body.classList.contains('light-theme');
-    document.body.className = isLight ? 'dark-theme' : 'light-theme';
+    const newTheme = isLight ? 'dark-theme' : 'light-theme';
+    
+    document.body.className = newTheme;
     themeToggle.querySelector('span').textContent = isLight ? 'light_mode' : 'dark_mode';
+    
+    // --- यहाँ बार का कलर बदलेगा ---
+    const metaBar = document.getElementById('pwa-meta');
+    if (metaBar) {
+        metaBar.setAttribute('content', newTheme === 'dark-theme' ? '#000000' : '#FFFFFF');
+    }
+    // ----------------------------
+
     localStorage.setItem('theme', document.body.className);
     document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
     applyThemePreset(localStorage.getItem('themePreset') || 'default');
 });
+
 
 // Theme & Alarm Modal Functions
 window.openThemeSettings = () => {
@@ -2014,3 +2025,17 @@ function typeWriter(element, html, speed = 10) {
     
     type();
 }
+
+
+
+
+
+
+window.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme') || 'light-theme';
+    const metaBar = document.getElementById('pwa-meta');
+    if (metaBar) {
+        metaBar.setAttribute('content', savedTheme === 'dark-theme' ? '#000000' : '#FFFFFF');
+    }
+});
+
