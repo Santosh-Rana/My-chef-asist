@@ -2,7 +2,8 @@
   "name": "Chef Master AI",
   "short_name": "Chef Master",
   "start_url": "./index.html",
-  "display": "standalone",
+  "display": "fullscreen",  
+  "orientation": "portrait",
   "background_color": "#FFFBFE",
   "theme_color": "#6750A4",
   "icons": [
@@ -10,7 +11,7 @@
       "src": "Chef.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "Chef.png",
